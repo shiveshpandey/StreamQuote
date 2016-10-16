@@ -20,43 +20,49 @@ import com.streamquote.app.ZStreamingQuoteControl;
 public class ProcessStopActionHandler extends ContextHandler {
 	private DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 	private TimeZone timeZone = TimeZone.getTimeZone("IST");
-	
+
 	/**
 	 * Constructor
 	 */
-	public ProcessStopActionHandler(){
+	public ProcessStopActionHandler() {
 		setContextPath(ZStreamingConfig.getJettyServerProcessStopURL());
 		dateFormat.setTimeZone(timeZone);
 	}
-	
+
 	@Override
-	public void doHandle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
+	public void doHandle(String target, Request baseRequest,
+			HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
 		String reqMethod = request.getMethod();
 
-		if(reqMethod.equals("GET")){
-			//GET method
-			if(ZStreamingConfig.isWebServiceLogsPrintable()){
-				System.out.println("ProcessStopActionHandler.doHandle(): ZStreamingQuote Process STOP initiated" + 
-					" [" + dateFormat.format(Calendar.getInstance(timeZone).getTime()) + "]");
+		if (reqMethod.equals("GET")) {
+			// GET method
+			if (ZStreamingConfig.isWebServiceLogsPrintable()) {
+				System.out
+						.println("ProcessStopActionHandler.doHandle(): ZStreamingQuote Process STOP initiated"
+								+ " ["
+								+ dateFormat.format(Calendar.getInstance(
+										timeZone).getTime()) + "]");
 			}
-			
-			//Stop the process
+
+			// Stop the process
 			ZStreamingQuoteControl.getInstance().stop();
-			
-			//write HTTP o/p back to client
+
+			// write HTTP o/p back to client
 			PrintWriter out = response.getWriter();
 			out.println("<h1>ZStreamingQuote Process - STOPPED</h1>");
-		} else if(reqMethod.equals("POST")){
-			//POST method not handled currently
-		} else{
-			//Default - other handlers not supported
-			System.out.println("ProcessStopActionHandler.doHandle(): ERROR: Request method not proper: " + reqMethod);
+		} else if (reqMethod.equals("POST")) {
+			// POST method not handled currently
+		} else {
+			// Default - other handlers not supported
+			System.out
+					.println("ProcessStopActionHandler.doHandle(): ERROR: Request method not proper: "
+							+ reqMethod);
 		}
 
 		response.setContentType("text/html; charset=utf-8");
 		response.setStatus(HttpServletResponse.SC_OK);
-		
+
 		baseRequest.setHandled(true);
 	}
 }

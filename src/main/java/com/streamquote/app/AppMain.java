@@ -1,15 +1,15 @@
 package com.streamquote.app;
 
-
 public class AppMain {
 	public static void main(String[] args) {
-		String apiKey = "abcd51hdgns";	// API KEY
-		String userId = "DR1234";	// USER ID
-		String publicToken = "asljfldlncnl093nnnzc4";	// PUBLIC TOKEN
+		String apiKey = "abcd51hdgns"; // API KEY
+		String userId = "DR1234"; // USER ID
+		String publicToken = "asljfldlncnl093nnnzc4"; // PUBLIC TOKEN
 
 		if (!TradingHolidays.isHoliday()) {
 			// Start Only when Its not a trading holiday
-			ZStreamingQuoteControl.getInstance().start(apiKey, userId, publicToken);
+			ZStreamingQuoteControl.getInstance().start(apiKey, userId,
+					publicToken);
 
 			// Time Range and Instrument Tokens
 			String fromTime = "17:00:00";
@@ -25,27 +25,35 @@ public class AppMain {
 			}
 
 			// OHLC Data Print
-			System.out.println("\nTestApp.main(): Instrument [" + instrumentToken1 + "] OHLC Data between Time Range ["
+			System.out.println("\nTestApp.main(): Instrument ["
+					+ instrumentToken1 + "] OHLC Data between Time Range ["
 					+ fromTime + "] : [" + toTime + "] ::");
-			System.out.println(
-					ZStreamingQuoteControl.getInstance().getOHLCDataByTimeRange(instrumentToken1, fromTime, toTime)
-							+ "\n");
-			System.out.println("\nTestApp.main(): Instrument [" + instrumentToken2 + "] OHLC Data between Time Range ["
+			System.out.println(ZStreamingQuoteControl.getInstance()
+					.getOHLCDataByTimeRange(instrumentToken1, fromTime, toTime)
+					+ "\n");
+			System.out.println("\nTestApp.main(): Instrument ["
+					+ instrumentToken2 + "] OHLC Data between Time Range ["
 					+ fromTime + "] : [" + toTime + "] ::");
-			System.out.println(
-					ZStreamingQuoteControl.getInstance().getOHLCDataByTimeRange(instrumentToken2, fromTime, toTime)
-							+ "\n");
+			System.out.println(ZStreamingQuoteControl.getInstance()
+					.getOHLCDataByTimeRange(instrumentToken2, fromTime, toTime)
+					+ "\n");
 
 			// Streamed Data Print
-			System.out.println("\nTestApp.main(): Instrument [" + instrumentToken1
-					+ "] Streamed Data between Time Range [" + fromTime + "] : [" + toTime + "] ::");
-			System.out.println(
-					ZStreamingQuoteControl.getInstance().getQuoteListByTimeRange(instrumentToken1, fromTime, toTime)
+			System.out.println("\nTestApp.main(): Instrument ["
+					+ instrumentToken1 + "] Streamed Data between Time Range ["
+					+ fromTime + "] : [" + toTime + "] ::");
+			System.out
+					.println(ZStreamingQuoteControl.getInstance()
+							.getQuoteListByTimeRange(instrumentToken1,
+									fromTime, toTime)
 							+ "\n");
-			System.out.println("\nTestApp.main(): Instrument [" + instrumentToken2
-					+ "] Streamed Data between Time Range [" + fromTime + "] : [" + toTime + "] ::");
-			System.out.println(
-					ZStreamingQuoteControl.getInstance().getQuoteListByTimeRange(instrumentToken2, fromTime, toTime)
+			System.out.println("\nTestApp.main(): Instrument ["
+					+ instrumentToken2 + "] Streamed Data between Time Range ["
+					+ fromTime + "] : [" + toTime + "] ::");
+			System.out
+					.println(ZStreamingQuoteControl.getInstance()
+							.getQuoteListByTimeRange(instrumentToken2,
+									fromTime, toTime)
 							+ "\n");
 
 			// Sleep for 10 seconds for testing

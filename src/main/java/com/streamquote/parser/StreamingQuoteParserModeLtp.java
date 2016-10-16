@@ -15,7 +15,8 @@ public class StreamingQuoteParserModeLtp implements IStreamingQuoteParser {
 		int instrumentToken = pktBuffer.getInt();
 		int ltp = pktBuffer.getInt();
 
-		StreamingQuote streamingQuote = new StreamingQuoteModeLtp(time, convertIntToIntString(instrumentToken),
+		StreamingQuote streamingQuote = new StreamingQuoteModeLtp(time,
+				convertIntToIntString(instrumentToken),
 				convertIntToBigDecimal(ltp));
 
 		return streamingQuote;
@@ -40,8 +41,9 @@ public class StreamingQuoteParserModeLtp implements IStreamingQuoteParser {
 	 * @return BigDecimal value
 	 */
 	private BigDecimal convertIntToBigDecimal(int quoteParam) {
-		BigDecimal quoteParamBigDecimal = new BigDecimal(quoteParam).divide(new BigDecimal(100),
-				new MathContext(8, RoundingMode.HALF_DOWN));
+		BigDecimal quoteParamBigDecimal = new BigDecimal(quoteParam)
+				.divide(new BigDecimal(100), new MathContext(8,
+						RoundingMode.HALF_DOWN));
 		return quoteParamBigDecimal;
 	}
 }

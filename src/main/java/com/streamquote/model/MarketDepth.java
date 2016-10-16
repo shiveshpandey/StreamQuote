@@ -6,9 +6,10 @@ public class MarketDepth {
 	public Long qty;
 	public BigDecimal price;
 	public Integer orders;
-	
+
 	/**
 	 * Constructor
+	 * 
 	 * @param qty
 	 * @param price
 	 * @param orders
@@ -19,28 +20,34 @@ public class MarketDepth {
 		this.price = price;
 		this.orders = orders;
 	}
-	
+
 	public Long getQty() {
 		return qty;
 	}
+
 	public void setQty(Long qty) {
 		this.qty = qty;
 	}
+
 	public BigDecimal getPrice() {
 		return price;
 	}
+
 	public void setPrice(BigDecimal price) {
 		this.price = price;
 	}
+
 	public Integer getOrders() {
 		return orders;
 	}
+
 	public void setOrders(Integer orders) {
 		this.orders = orders;
 	}
 
 	@Override
 	public String toString() {
-		return "MarketDepth [qty=" + qty + ", price=" + price + ", orders=" + orders + "]";
+		return "MarketDepth [qty=" + qty + ", price=" + price + ", orders="
+				+ orders + "]";
 	}
 }

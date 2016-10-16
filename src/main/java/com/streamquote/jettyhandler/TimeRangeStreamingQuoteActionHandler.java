@@ -37,36 +37,53 @@ public class TimeRangeStreamingQuoteActionHandler extends ContextHandler {
 	 * constructor
 	 */
 	public TimeRangeStreamingQuoteActionHandler() {
-		setContextPath(ZStreamingConfig.getJettyServerTimeRangeStreamingQuoteURL());
+		setContextPath(ZStreamingConfig
+				.getJettyServerTimeRangeStreamingQuoteURL());
 		dateFormat.setTimeZone(timeZone);
 	}
 
 	@Override
-	public void doHandle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
+	public void doHandle(String target, Request baseRequest,
+			HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
 		String reqMethod = request.getMethod();
-		
-		//map request params to values
+
+		// map request params to values
 		Map<String, String> queryValMap = getQueryParameters(request);
 
 		// Get the requested format for data
-		String dataFormat = queryValMap.get(ZStreamingConfig.getJettyServerTimeRangeStreamingQuoteformatReqParam());
+		String dataFormat = queryValMap.get(ZStreamingConfig
+				.getJettyServerTimeRangeStreamingQuoteformatReqParam());
 		// Get Time Range requested
-		String fromTime = queryValMap.get(ZStreamingConfig.getJettyServerTimeRangeStreamingQuotefromTimeReqParam());
-		String toTime = queryValMap.get(ZStreamingConfig.getJettyServerTimeRangeStreamingQuotetoTimeReqParam());
-		String instrumentToken = queryValMap.get(ZStreamingConfig.getJettyServerTimeRangeStreamingQuoteinstrumentReqParam());
+		String fromTime = queryValMap.get(ZStreamingConfig
+				.getJettyServerTimeRangeStreamingQuotefromTimeReqParam());
+		String toTime = queryValMap.get(ZStreamingConfig
+				.getJettyServerTimeRangeStreamingQuotetoTimeReqParam());
+		String instrumentToken = queryValMap.get(ZStreamingConfig
+				.getJettyServerTimeRangeStreamingQuoteinstrumentReqParam());
 
 		if (reqMethod.equals("GET")) {
 			// GET method
-			if(ZStreamingConfig.isWebServiceLogsPrintable()){
-				System.out.println(
-					"TimeRangeStreamingQuoteActionHandler.doHandle(): ZStreamingQuote Time Range Streaming Quote [GET]: "
-							+ "Requested Format: " + "[" + dataFormat + "] fromTime: [" + fromTime + "] toTime: ["
-							+ toTime + "] instrumentToken: [" + instrumentToken + "] - [" + dateFormat.format(Calendar.getInstance(timeZone).getTime()) + "]");
+			if (ZStreamingConfig.isWebServiceLogsPrintable()) {
+				System.out
+						.println("TimeRangeStreamingQuoteActionHandler.doHandle(): ZStreamingQuote Time Range Streaming Quote [GET]: "
+								+ "Requested Format: "
+								+ "["
+								+ dataFormat
+								+ "] fromTime: ["
+								+ fromTime
+								+ "] toTime: ["
+								+ toTime
+								+ "] instrumentToken: ["
+								+ instrumentToken
+								+ "] - ["
+								+ dateFormat.format(Calendar.getInstance(
+										timeZone).getTime()) + "]");
 			}
 
-			List<StreamingQuote> quoteList = ZStreamingQuoteControl.getInstance()
-					.getQuoteListByTimeRange(instrumentToken, fromTime, toTime);
+			List<StreamingQuote> quoteList = ZStreamingQuoteControl
+					.getInstance().getQuoteListByTimeRange(instrumentToken,
+							fromTime, toTime);
 			String outData = null;
 			if (quoteList == null) {
 				outData = "<h1>Requested Data could NOT be fetched, may be DB problem</h1>";
@@ -74,13 +91,15 @@ public class TimeRangeStreamingQuoteActionHandler extends ContextHandler {
 				if (dataFormat.equals("json")) {
 					// format JSON
 					outData = formatQuoteListToJSON(quoteList);
-				}/* else if (dataFormat.equals("csv")) {
-					// format CSV
-					outData = formatQuoteListToCSV(quoteList);
-				}*/ else {
-					outData = "<h1>Requested Format " + dataFormat + " NOT supported, only csv or json</h1>";
-					System.out.println(
-							"TimeRangeStreamingQuoteActionHandler.doHandle(): ERROR: [" + dataFormat + "] NOT Supported");
+				}/*
+				 * else if (dataFormat.equals("csv")) { // format CSV outData =
+				 * formatQuoteListToCSV(quoteList); }
+				 */else {
+					outData = "<h1>Requested Format " + dataFormat
+							+ " NOT supported, only csv or json</h1>";
+					System.out
+							.println("TimeRangeStreamingQuoteActionHandler.doHandle(): ERROR: ["
+									+ dataFormat + "] NOT Supported");
 				}
 			}
 
@@ -91,7 +110,9 @@ public class TimeRangeStreamingQuoteActionHandler extends ContextHandler {
 			// POST method not handled currently
 		} else {
 			// Default - other handlers not supported
-			System.out.println("TimeRangeStreamingQuoteActionHandler.doHandle(): ERROR: Request method not proper: " + reqMethod);
+			System.out
+					.println("TimeRangeStreamingQuoteActionHandler.doHandle(): ERROR: Request method not proper: "
+							+ reqMethod);
 		}
 
 		response.setContentType("text/html; charset=utf-8");
@@ -103,7 +124,8 @@ public class TimeRangeStreamingQuoteActionHandler extends ContextHandler {
 	/**
 	 * formatQuoteListToJSON - convert quote list to JSON
 	 * 
-	 * @param quote list
+	 * @param quote
+	 *            list
 	 * @return JSON formatted quote list
 	 */
 	private String formatQuoteListToJSON(List<StreamingQuote> quoteList) {
@@ -113,8 +135,8 @@ public class TimeRangeStreamingQuoteActionHandler extends ContextHandler {
 		try {
 			jsonData = mapper.writeValueAsString(quoteList);
 		} catch (JsonProcessingException e) {
-			System.out.println(
-					"TimeRangeStreamingQuoteActionHandler.formatQuoteListToJSON(): ERROR: JsonProcessingException on quote list !!!");
+			System.out
+					.println("TimeRangeStreamingQuoteActionHandler.formatQuoteListToJSON(): ERROR: JsonProcessingException on quote list !!!");
 			e.printStackTrace();
 		}
 
@@ -124,22 +146,27 @@ public class TimeRangeStreamingQuoteActionHandler extends ContextHandler {
 	/**
 	 * formatQuoteListToCSV - convert quote list to CSV
 	 * 
-	 * @param quote list
+	 * @param quote
+	 *            list
 	 * @return CSV formatted Quote list
 	 */
 	private String formatQuoteListToCSV(List<StreamingQuote> quoteList) {
 		String csvData = null;
 		CsvMapper mapper = new CsvMapper();
 		CsvSchema schema = null;
-		
-		if(quoteList.get(0).getClass() == StreamingQuoteModeLtp.class){
-			schema = mapper.schemaFor(StreamingQuoteModeLtp.class).withHeader().withColumnSeparator(',');
-		} else if(quoteList.get(0).getClass() == StreamingQuoteModeQuote.class){
-			schema = mapper.schemaFor(StreamingQuoteModeQuote.class).withHeader().withColumnSeparator(',');
-		} else if(quoteList.get(0).getClass() == StreamingQuoteModeFull.class){
-			schema = mapper.schemaFor(StreamingQuoteModeFull.class).withHeader().withColumnSeparator(',');
-		} else{
-			System.out.println("TimeRangeStreamingQuoteActionHandler.formatQuoteListToCSV(): ERROR: Wrong POJO class to map");
+
+		if (quoteList.get(0).getClass() == StreamingQuoteModeLtp.class) {
+			schema = mapper.schemaFor(StreamingQuoteModeLtp.class).withHeader()
+					.withColumnSeparator(',');
+		} else if (quoteList.get(0).getClass() == StreamingQuoteModeQuote.class) {
+			schema = mapper.schemaFor(StreamingQuoteModeQuote.class)
+					.withHeader().withColumnSeparator(',');
+		} else if (quoteList.get(0).getClass() == StreamingQuoteModeFull.class) {
+			schema = mapper.schemaFor(StreamingQuoteModeFull.class)
+					.withHeader().withColumnSeparator(',');
+		} else {
+			System.out
+					.println("TimeRangeStreamingQuoteActionHandler.formatQuoteListToCSV(): ERROR: Wrong POJO class to map");
 		}
 
 		try {
@@ -152,31 +179,33 @@ public class TimeRangeStreamingQuoteActionHandler extends ContextHandler {
 
 		return csvData;
 	}
-	
+
 	/**
 	 * getQueryParameters - map of query parameter to value
+	 * 
 	 * @param request
 	 * @return map of request parameters
 	 */
-	private Map<String, String> getQueryParameters(HttpServletRequest request){
+	private Map<String, String> getQueryParameters(HttpServletRequest request) {
 		Map<String, String> queryParameters = new HashMap<>();
-	    String queryString = request.getQueryString();
+		String queryString = request.getQueryString();
 
-	    if (StringUtils.isEmpty(queryString)) {
-	    	System.out.println("TimeRangeStreamingQuoteActionHandler.getQueryParameters(): ERROR: query string is empty !!!");
-	        return null;
-	    }
+		if (StringUtils.isEmpty(queryString)) {
+			System.out
+					.println("TimeRangeStreamingQuoteActionHandler.getQueryParameters(): ERROR: query string is empty !!!");
+			return null;
+		}
 
-	    String[] parameters;
-	    if(queryString.contains("&")){
-	    	parameters = queryString.split("&");
-	    } else{
-	    	parameters = queryString.split("%26");
-	    }
-	    for (String parameter : parameters) {
-	        String[] keyValuePair = parameter.split("=");
-	        queryParameters.put(keyValuePair[0], keyValuePair[1]);
-	    }
-	    return queryParameters;
+		String[] parameters;
+		if (queryString.contains("&")) {
+			parameters = queryString.split("&");
+		} else {
+			parameters = queryString.split("%26");
+		}
+		for (String parameter : parameters) {
+			String[] keyValuePair = parameter.split("=");
+			queryParameters.put(keyValuePair[0], keyValuePair[1]);
+		}
+		return queryParameters;
 	}
 }
