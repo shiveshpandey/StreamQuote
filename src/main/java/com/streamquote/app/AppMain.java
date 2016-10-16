@@ -1,9 +1,9 @@
 package com.streamquote.app;
 
 
-public class TestApp {
+public class AppMain {
 	public static void main(String[] args) {
-		String apiKey = "abcd51hdgns";	// aaAPI KEY
+		String apiKey = "abcd51hdgns";	// API KEY
 		String userId = "DR1234";	// USER ID
 		String publicToken = "asljfldlncnl093nnnzc4";	// PUBLIC TOKEN
 

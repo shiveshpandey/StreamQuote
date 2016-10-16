@@ -14,7 +14,7 @@ public class ZStreamingConfig {
 	
 	public static final String QUOTE_STREAMING_DB_URL = "jdbc:mysql://localhost/ZStreamingQuotesDB";
 	public static final String QUOTE_STREAMING_DB_USER = "root";
-	public static final String QUOTE_STREAMING_DB_PWD = "";
+	public static final String QUOTE_STREAMING_DB_PWD = "@@Kumar9191";
 	public static final String QUOTE_STREAMING_DB_TABLE_NAME_PRE_APPENDER = "StreamingQuoteMode_Mode";
 	public static final String QUOTE_STREAMING_DB_TABLE_NAME_POST_APPENDER = "_Date";
 	public static final Boolean QUOTE_STREAMING_DB_STORE_REQD = true;
