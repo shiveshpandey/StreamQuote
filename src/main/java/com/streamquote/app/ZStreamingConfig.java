@@ -12,7 +12,7 @@ public class ZStreamingConfig {
 	public static final Integer QUOTE_STREAMING_REINITIATE_RETRY_LIMIT = 5;
 	public static final Boolean QUOTE_STREAMING_START_AT_BOOTUP = false;
 
-	public static final String QUOTE_STREAMING_DB_URL = "jdbc:mysql://localhost/ZStreamingQuotesDB";
+	public static final String QUOTE_STREAMING_DB_URL = "jdbc:mysql://localhost:3306/StreamQuoteDB";
 	public static final String QUOTE_STREAMING_DB_USER = "root";
 	public static final String QUOTE_STREAMING_DB_PWD = "@@Kumar9191";
 	public static final String QUOTE_STREAMING_DB_TABLE_NAME_PRE_APPENDER = "StreamingQuoteMode_Mode";

@@ -12,7 +12,7 @@ public class AppMain {
 					publicToken);
 
 			// Time Range and Instrument Tokens
-			String fromTime = "17:00:00";
+			String fromTime = "14:00:00";
 			String toTime = "19:00:00";
 			String instrumentToken1 = ZStreamingConfig.getInstrumentTokenArr()[0];
 			String instrumentToken2 = ZStreamingConfig.getInstrumentTokenArr()[1];
