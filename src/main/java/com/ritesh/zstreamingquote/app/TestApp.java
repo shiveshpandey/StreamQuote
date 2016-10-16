@@ -6,7 +6,7 @@ import com.ritesh.zstreamingquote.control.ZStreamingQuoteControl;
 
 public class TestApp {
 	public static void main(String[] args) {
-		String apiKey = "abcd51hdgns";	// API KEY
+		String apiKey = "abcd51hdgns";	// aaAPI KEY
 		String userId = "DR1234";	// USER ID
 		String publicToken = "asljfldlncnl093nnnzc4";	// PUBLIC TOKEN
 
