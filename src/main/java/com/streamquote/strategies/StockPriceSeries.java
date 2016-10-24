@@ -3,6 +3,8 @@ package com.streamquote.strategies;
 import java.util.Date;
 import java.util.List;
 
+import com.streamquote.strategies.Order.OrderType;
+
 public class StockPriceSeries {
 
 	private String stockName;
@@ -11,6 +13,11 @@ public class StockPriceSeries {
 	private int endIndex = -1;
 	private int maximumTickCount = Integer.MAX_VALUE;
 	private int removedTicksCount = 0;
+
+	public StockPriceSeries(String stockName, List<Tick> ticks) {
+		this.stockName = stockName;
+		this.ticks = ticks;
+	}
 
 	public String getStockName() {
 		return stockName;
@@ -131,6 +138,86 @@ public class StockPriceSeries {
 			}
 			removedTicksCount += nbTicksToRemove;
 		}
+	}
+
+	/**
+	 * Runs the strategy over the series.
+	 * <p>
+	 * Opens the trades with {@link OrderType.BUY} orders.
+	 * 
+	 * @param strategy
+	 *            the trading strategy
+	 * @return the trading record coming from the run
+	 */
+	public TradingRecord run(Strategy strategy) {
+		return run(strategy, OrderType.BUY);
+	}
+
+	/**
+	 * Runs the strategy over the series.
+	 * <p>
+	 * Opens the trades with {@link OrderType.BUY} orders.
+	 * 
+	 * @param strategy
+	 *            the trading strategy
+	 * @param orderType
+	 *            the {@link OrderType} used to open the trades
+	 * @return the trading record coming from the run
+	 */
+	public TradingRecord run(Strategy strategy, OrderType orderType) {
+		return run(strategy, orderType, Decimal.NaN);
+	}
+
+	/**
+	 * Runs the strategy over the series.
+	 * <p>
+	 * 
+	 * @param strategy
+	 *            the trading strategy
+	 * @param orderType
+	 *            the {@link OrderType} used to open the trades
+	 * @param amount
+	 *            the amount used to open/close the trades
+	 * @return the trading record coming from the run
+	 */
+	public TradingRecord run(Strategy strategy, OrderType orderType,
+			Decimal amount) {
+
+		TradingRecord tradingRecord = new TradingRecord(orderType);
+		for (int i = beginIndex; i <= endIndex; i++) {
+			// For each tick in the sub-series...
+			if (strategy.shouldOperate(i, tradingRecord)) {
+				tradingRecord.operate(i, ticks.get(i).getClosePrice(), amount);
+			}
+		}
+
+		if (!tradingRecord.isClosed()) {
+			// If the last trade is still opened, we search out of the end
+			// index.
+			// May works if the current series is a sub-series (but not the last
+			// sub-series).
+			for (int i = endIndex + 1; i < ticks.size(); i++) {
+				// For each tick out of sub-series bound...
+				// --> Trying to close the last trade
+				if (strategy.shouldOperate(i, tradingRecord)) {
+					tradingRecord.operate(i, ticks.get(i).getClosePrice(),
+							amount);
+					break;
+				}
+			}
+		}
+		return tradingRecord;
+	}
+
+	public String getSeriesPeriodDescription() {
+		StringBuilder sb = new StringBuilder();
+		if (!ticks.isEmpty()) {
+			Tick firstTick = getFirstTick();
+			Tick lastTick = getLastTick();
+			sb.append(firstTick.getTimeStamp().toString()).append(" - ")
+					.append(lastTick.getTimeStamp().toString());
+		}
+		return sb.toString();
 	}
 
 }
