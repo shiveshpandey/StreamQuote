@@ -1,5 +1,6 @@
 package com.streamquote.strategies;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -15,8 +16,32 @@ public class StockPriceSeries {
 	private int removedTicksCount = 0;
 
 	public StockPriceSeries(String stockName, List<Tick> ticks) {
-		this.stockName = stockName;
+		this(stockName, ticks, 0, ticks.size() - 1);
+
+	}
+
+	public StockPriceSeries(List<Tick> ticks) {
+		this("unnamed", ticks);
+	}
+
+	public StockPriceSeries(String name) {
+		this.stockName = name;
+		this.ticks = new ArrayList<Tick>();
+	}
+
+	public StockPriceSeries() {
+		this("unamed");
+	}
+
+	private StockPriceSeries(String name, List<Tick> ticks, int beginIndex,
+			int endIndex) {
+		if (endIndex < beginIndex - 1) {
+			throw new IllegalArgumentException("end cannot be < than begin - 1");
+		}
+		this.stockName = name;
 		this.ticks = ticks;
+		this.beginIndex = beginIndex;
+		this.endIndex = endIndex;
 	}
 
 	public String getStockName() {
@@ -211,12 +236,12 @@ public class StockPriceSeries {
 
 	public String getSeriesPeriodDescription() {
 		StringBuilder sb = new StringBuilder();
-		// if (!ticks.isEmpty()) {
-		// Tick firstTick = getFirstTick();
-		// Tick lastTick = getLastTick();
-		// sb.append(firstTick.getTimeStamp().toString()).append(" - ")
-		// .append(lastTick.getTimeStamp().toString());
-		// }
+		if (!ticks.isEmpty()) {
+			Tick firstTick = getFirstTick();
+			Tick lastTick = getLastTick();
+			sb.append(firstTick.getTimeStamp().toString()).append(" - ")
+					.append(lastTick.getTimeStamp().toString());
+		}
 		return sb.toString();
 	}
 
