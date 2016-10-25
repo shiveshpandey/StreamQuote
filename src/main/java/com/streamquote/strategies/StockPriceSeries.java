@@ -8,94 +8,122 @@ import com.streamquote.strategies.Order.OrderType;
 
 public class StockPriceSeries {
 
-	private String stockName;
-	private List<Tick> ticks;
+	/** Name of the series */
+	private final String name;
+	/** Begin index of the time series */
 	private int beginIndex = -1;
+	/** End index of the time series */
 	private int endIndex = -1;
+	/** List of ticks */
+	private final List<Tick> ticks;
+	/** Maximum number of ticks for the time series */
 	private int maximumTickCount = Integer.MAX_VALUE;
+	/** Number of removed ticks */
 	private int removedTicksCount = 0;
+	/** True if the current series is a sub-series, false otherwise */
+	private boolean subSeries = false;
 
-	public StockPriceSeries(String stockName, List<Tick> ticks) {
-		this(stockName, ticks, 0, ticks.size() - 1);
-
+	/**
+	 * Constructor.
+	 * 
+	 * @param name
+	 *            the name of the series
+	 * @param ticks
+	 *            the list of ticks of the series
+	 */
+	public StockPriceSeries(String name, List<Tick> ticks) {
+		this(name, ticks, 0, ticks.size() - 1, false);
 	}
 
+	/**
+	 * Constructor of an unnamed series.
+	 * 
+	 * @param ticks
+	 *            the list of ticks of the series
+	 */
 	public StockPriceSeries(List<Tick> ticks) {
 		this("unnamed", ticks);
 	}
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param name
+	 *            the name of the series
+	 */
 	public StockPriceSeries(String name) {
-		this.stockName = name;
+		this.name = name;
 		this.ticks = new ArrayList<Tick>();
 	}
 
+	/**
+	 * Constructor of an unnamed series.
+	 */
 	public StockPriceSeries() {
 		this("unamed");
 	}
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param name
+	 *            the name of the series
+	 * @param ticks
+	 *            the list of ticks of the series
+	 * @param beginIndex
+	 *            the begin index (inclusive) of the time series
+	 * @param endIndex
+	 *            the end index (inclusive) of the time series
+	 * @param subSeries
+	 *            true if the current series is a sub-series, false otherwise
+	 */
 	private StockPriceSeries(String name, List<Tick> ticks, int beginIndex,
-			int endIndex) {
+			int endIndex, boolean subSeries) {
+		// TODO: add null checks and out of bounds checks
 		if (endIndex < beginIndex - 1) {
 			throw new IllegalArgumentException("end cannot be < than begin - 1");
 		}
-		this.stockName = name;
+		this.name = name;
 		this.ticks = ticks;
 		this.beginIndex = beginIndex;
 		this.endIndex = endIndex;
+		this.subSeries = subSeries;
 	}
 
-	public String getStockName() {
-		return stockName;
+	/**
+	 * @return the name of the series
+	 */
+	public String getName() {
+		return name;
 	}
 
-	public List<Tick> getTicks() {
-		return ticks;
-	}
-
-	public void setStockName(String stockName) {
-		this.stockName = stockName;
-	}
-
-	public void setTicks(List<Tick> ticks) {
-		this.ticks = ticks;
-	}
-
-	public void addTick(Tick tick) {
-		if (tick == null) {
-			throw new IllegalArgumentException("Cannot add null tick");
-		}
-		final int lastTickIndex = ticks.size() - 1;
-		if (!ticks.isEmpty()) {
-			Date seriesEndTime = ticks.get(lastTickIndex).getTimeStamp();
-			if (!tick.getTimeStamp().after(seriesEndTime)) {
-				throw new IllegalArgumentException(
-						"Cannot add a tick with end time <= to series end time");
-			}
-		}
-		ticks.add(tick);
-		if (beginIndex == -1) {
-			beginIndex = 0;
-		}
-		endIndex++;
-		removeExceedingTicks();
-	}
-
+	/**
+	 * @param i
+	 *            an index
+	 * @return the tick at the i-th position
+	 */
 	public Tick getTick(int i) {
 		int innerIndex = i - removedTicksCount;
 		if (innerIndex < 0) {
 			if (i < 0) {
-				throw new IndexOutOfBoundsException("IndexOutOfBoundsException");
+				throw new IndexOutOfBoundsException(buildOutOfBoundsMessage(
+						this, i));
 			}
 			if (ticks.isEmpty()) {
-				throw new IndexOutOfBoundsException("IndexOutOfBoundsException");
+				throw new IndexOutOfBoundsException(buildOutOfBoundsMessage(
+						this, removedTicksCount));
 			}
 			innerIndex = 0;
 		} else if (innerIndex >= ticks.size()) {
-			throw new IndexOutOfBoundsException("IndexOutOfBoundsException");
+			throw new IndexOutOfBoundsException(
+					buildOutOfBoundsMessage(this, i));
 		}
 		return ticks.get(innerIndex);
 	}
 
+	/**
+	 * @return the first tick of the series
+	 */
 	public Tick getFirstTick() {
 		return getTick(beginIndex);
 	}
@@ -132,8 +160,37 @@ public class StockPriceSeries {
 		return endIndex;
 	}
 
-	public void setMaximumTickCount(int maximumTickCount) {
+	/**
+	 * @return the description of the series period (e.g.
+	 *         "from 12:00 21/01/2014 to 12:15 21/01/2014")
+	 */
+	public String getSeriesPeriodDescription() {
+		StringBuilder sb = new StringBuilder();
+		if (!ticks.isEmpty()) {
+			Tick firstTick = getFirstTick();
+			Tick lastTick = getLastTick();
+			sb.append(firstTick.getEndTime().toString()).append(" - ")
+					.append(lastTick.getEndTime().toString());
+		}
+		return sb.toString();
+	}
 
+	/**
+	 * Sets the maximum number of ticks that will be retained in the series.
+	 * <p>
+	 * If a new tick is added to the series such that the number of ticks will
+	 * exceed the maximum tick count, then the FIRST tick in the series is
+	 * automatically removed, ensuring that the maximum tick count is not
+	 * exceeded.
+	 * 
+	 * @param maximumTickCount
+	 *            the maximum tick count
+	 */
+	public void setMaximumTickCount(int maximumTickCount) {
+		if (subSeries) {
+			throw new IllegalStateException(
+					"Cannot set a maximum tick count on a sub-series");
+		}
 		if (maximumTickCount <= 0) {
 			throw new IllegalArgumentException(
 					"Maximum tick count must be strictly positive");
@@ -149,21 +206,128 @@ public class StockPriceSeries {
 		return maximumTickCount;
 	}
 
+	/**
+	 * @return the number of removed ticks
+	 */
 	public int getRemovedTicksCount() {
 		return removedTicksCount;
 	}
 
-	private void removeExceedingTicks() {
-		int tickCount = ticks.size();
-		if (tickCount > maximumTickCount) {
-			// Removing old ticks
-			int nbTicksToRemove = tickCount - maximumTickCount;
-			for (int i = 0; i < nbTicksToRemove; i++) {
-				ticks.remove(0);
-			}
-			removedTicksCount += nbTicksToRemove;
+	/**
+	 * Adds a tick at the end of the series.
+	 * <p>
+	 * Begin index set to 0 if if wasn't initialized.<br>
+	 * End index set to 0 if if wasn't initialized, or incremented if it matches
+	 * the end of the series.<br>
+	 * Exceeding ticks are removed.
+	 * 
+	 * @param tick
+	 *            the tick to be added
+	 * @see StockPriceSeries#setMaximumTickCount(int)
+	 */
+	public void addTick(Tick tick) {
+		if (tick == null) {
+			throw new IllegalArgumentException("Cannot add null tick");
 		}
+		final int lastTickIndex = ticks.size() - 1;
+		if (!ticks.isEmpty()) {
+			Date seriesEndTime = ticks.get(lastTickIndex).getEndTime();
+			if (!tick.getEndTime().after(seriesEndTime)) {
+				throw new IllegalArgumentException(
+						"Cannot add a tick with end time <= to series end time");
+			}
+		}
+
+		ticks.add(tick);
+		if (beginIndex == -1) {
+			// Begin index set to 0 only if if wasn't initialized
+			beginIndex = 0;
+		}
+		endIndex++;
+		removeExceedingTicks();
 	}
+
+	/**
+	 * Returns a new time series which is a view of a subset of the current
+	 * series.
+	 * <p>
+	 * The new series has begin and end indexes which correspond to the bounds
+	 * of the sub-set into the full series.<br>
+	 * The tick of the series are shared between the original time series and
+	 * the returned one (i.e. no copy).
+	 * 
+	 * @param beginIndex
+	 *            the begin index (inclusive) of the time series
+	 * @param endIndex
+	 *            the end index (inclusive) of the time series
+	 * @return a constrained {@link StockPriceSeries time series} which is a
+	 *         sub-set of the current series
+	 */
+	public StockPriceSeries subseries(int beginIndex, int endIndex) {
+		if (maximumTickCount != Integer.MAX_VALUE) {
+			throw new IllegalStateException(
+					"Cannot create a sub-series from a time series for which a maximum tick count has been set");
+		}
+		return new StockPriceSeries(name, ticks, beginIndex, endIndex, true);
+	}
+
+	/**
+	 * Returns a new time series which is a view of a subset of the current
+	 * series.
+	 * <p>
+	 * The new series has begin and end indexes which correspond to the bounds
+	 * of the sub-set into the full series.<br>
+	 * The tick of the series are shared between the original time series and
+	 * the returned one (i.e. no copy).
+	 * 
+	 * @param beginIndex
+	 *            the begin index (inclusive) of the time series
+	 * @param duration
+	 *            the duration of the time series
+	 * @return a constrained {@link StockPriceSeries time series} which is a
+	 *         sub-set of the current series
+	 */
+
+	/**
+	 * Splits the time series into sub-series containing nbTicks ticks each.<br>
+	 * The current time series is splitted every nbTicks ticks.<br>
+	 * The last sub-series may have less ticks than nbTicks.
+	 * 
+	 * @param nbTicks
+	 *            the number of ticks of each sub-series
+	 * @return a list of sub-series
+	 */
+	public List<StockPriceSeries> split(int nbTicks) {
+		ArrayList<StockPriceSeries> subseries = new ArrayList<StockPriceSeries>();
+		for (int i = beginIndex; i <= endIndex; i += nbTicks) {
+			// For each nbTicks ticks
+			int subseriesBegin = i;
+			int subseriesEnd = Math.min(subseriesBegin + nbTicks - 1, endIndex);
+			subseries.add(subseries(subseriesBegin, subseriesEnd));
+		}
+		return subseries;
+	}
+
+	/**
+	 * Splits the time series into sub-series lasting sliceDuration.<br>
+	 * The current time series is splitted every splitDuration.<br>
+	 * The last sub-series may last less than sliceDuration.
+	 * 
+	 * @param splitDuration
+	 *            the duration between 2 splits
+	 * @param sliceDuration
+	 *            the duration of each sub-series
+	 * @return a list of sub-series
+	 */
+	/**
+	 * Splits the time series into sub-series lasting duration.<br>
+	 * The current time series is splitted every duration.<br>
+	 * The last sub-series may last less than duration.
+	 * 
+	 * @param duration
+	 *            the duration between 2 splits (and of each sub-series)
+	 * @return a list of sub-series
+	 */
 
 	/**
 	 * Runs the strategy over the series.
@@ -234,15 +398,40 @@ public class StockPriceSeries {
 		return tradingRecord;
 	}
 
-	public String getSeriesPeriodDescription() {
-		StringBuilder sb = new StringBuilder();
-		if (!ticks.isEmpty()) {
-			Tick firstTick = getFirstTick();
-			Tick lastTick = getLastTick();
-			sb.append(firstTick.getTimeStamp().toString()).append(" - ")
-					.append(lastTick.getTimeStamp().toString());
+	/**
+	 * Removes the N first ticks which exceed the maximum tick count.
+	 */
+	private void removeExceedingTicks() {
+		int tickCount = ticks.size();
+		if (tickCount > maximumTickCount) {
+			// Removing old ticks
+			int nbTicksToRemove = tickCount - maximumTickCount;
+			for (int i = 0; i < nbTicksToRemove; i++) {
+				ticks.remove(0);
+			}
+			// Updating removed ticks count
+			removedTicksCount += nbTicksToRemove;
 		}
-		return sb.toString();
 	}
 
+	/**
+	 * Builds a list of split indexes from splitDuration.
+	 * 
+	 * @param splitDuration
+	 *            the duration between 2 splits
+	 * @return a list of begin indexes after split
+	 */
+
+	/**
+	 * @param series
+	 *            a time series
+	 * @param index
+	 *            an out of bounds tick index
+	 * @return a message for an OutOfBoundsException
+	 */
+	private static String buildOutOfBoundsMessage(StockPriceSeries series,
+			int index) {
+		return "Size of series: " + series.ticks.size() + " ticks, "
+				+ series.removedTicksCount + " ticks removed, index = " + index;
+	}
 }

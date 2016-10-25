@@ -74,7 +74,7 @@ public class CsvTicksLoader {
 	public static void main(String[] args) {
 		StockPriceSeries series = CsvTicksLoader.loadAppleIncSeries();
 
-		System.out.println("Series: " + series.getStockName() + " ("
+		System.out.println("Series: " + series.getName() + " ("
 				+ series.getSeriesPeriodDescription() + ")");
 		System.out.println("Number of ticks: " + series.getTickCount());
 		System.out.println("First tick: \n" + "\tVolume: "

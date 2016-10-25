@@ -15,6 +15,34 @@ public class Tick {
 	private Date beginTime;
 	private Date endTime;
 
+	public Decimal getAmount() {
+		return amount;
+	}
+
+	public void setAmount(Decimal amount) {
+		this.amount = amount;
+	}
+
+	public Date getBeginTime() {
+		return beginTime;
+	}
+
+	public void setBeginTime(Date beginTime) {
+		this.beginTime = beginTime;
+	}
+
+	public Date getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
+	}
+
+	public void setTrades(int trades) {
+		this.trades = trades;
+	}
+
 	public Tick(Date date, Decimal open, Decimal high, Decimal low,
 			Decimal close, Decimal volume) {
 		this.timeStamp = date;
