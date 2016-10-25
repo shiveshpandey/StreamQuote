@@ -25,15 +25,16 @@ public class CsvTradesLoader {
 
 		// Reading all lines of the CSV file
 		BufferedReader bufferedReader = null;
-		List<String[]> lines = null;
+		List<String[]> lines = new ArrayList<String[]>();
 
 		try {
 			FileReader fileReader = new FileReader(
-					"appleinc_ticks_from_20130101_usd.csv");
+					"/home/shiva/git/ta4j/ta4j-examples/src/main/resources/bitstamp_trades_from_20131125_usd.csv");
 			bufferedReader = new BufferedReader(fileReader);
 			String readline;
 			while ((readline = bufferedReader.readLine()) != null) {
-				lines.add(readline.split(","));
+				String temp[] = readline.split(",");
+				lines.add(temp);
 			}
 			lines.remove(0); // Removing header line
 		} catch (IOException ioe) {
@@ -67,7 +68,10 @@ public class CsvTradesLoader {
 				Date tradeTimestamp = new Date(
 						Long.parseLong(tradeLine[0]) * 1000);
 				for (Tick tick : ticks) {
-					if (tick.inPeriod(tradeTimestamp)) {
+					if (tick.inPeriod(tradeTimestamp) && null != tradeLine[1]
+							&& null != tradeLine[2]
+							&& !"".equalsIgnoreCase(tradeLine[1])
+							&& !"".equalsIgnoreCase(tradeLine[2])) {
 						double tradePrice = Double.parseDouble(tradeLine[1]);
 						double tradeAmount = Double.parseDouble(tradeLine[2]);
 						tick.addTrade(tradeAmount, tradePrice);
@@ -94,13 +98,12 @@ public class CsvTradesLoader {
 	 */
 	private static List<Tick> buildEmptyTicks(Date beginTime, Date endTime,
 			int duration) {
-
 		List<Tick> emptyTicks = new ArrayList<Tick>();
-
 		Date tickEndTime = beginTime;
 		do {
-			tickEndTime.setSeconds(tickEndTime.getSeconds() + duration);
+			tickEndTime = new Date((tickEndTime.getTime() + duration * 1000L));
 			emptyTicks.add(new Tick(duration, tickEndTime));
+
 		} while (tickEndTime.before(endTime));
 
 		return emptyTicks;

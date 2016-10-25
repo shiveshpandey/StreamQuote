@@ -211,12 +211,12 @@ public class StockPriceSeries {
 
 	public String getSeriesPeriodDescription() {
 		StringBuilder sb = new StringBuilder();
-		if (!ticks.isEmpty()) {
-			Tick firstTick = getFirstTick();
-			Tick lastTick = getLastTick();
-			sb.append(firstTick.getTimeStamp().toString()).append(" - ")
-					.append(lastTick.getTimeStamp().toString());
-		}
+		// if (!ticks.isEmpty()) {
+		// Tick firstTick = getFirstTick();
+		// Tick lastTick = getLastTick();
+		// sb.append(firstTick.getTimeStamp().toString()).append(" - ")
+		// .append(lastTick.getTimeStamp().toString());
+		// }
 		return sb.toString();
 	}
 

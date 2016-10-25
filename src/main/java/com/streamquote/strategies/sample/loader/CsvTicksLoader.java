@@ -29,14 +29,23 @@ public class CsvTicksLoader {
 		BufferedReader bufferedReader = null;
 		try {
 			FileReader fileReader = new FileReader(
-					"appleinc_ticks_from_20130101_usd.csv");
+					"/home/shiva/git/ta4j/ta4j-examples/src/main/resources/appleinc_ticks_from_20130101_usd.csv");
 			bufferedReader = new BufferedReader(fileReader);
 			String[] line;
 			String readline;
+			int i = 0;
 
 			while ((readline = bufferedReader.readLine()) != null) {
 				line = readline.split(",");
-				Date date = new Date(Date.parse(line[0]));
+				if (i == 0) {
+					i += 1;
+					continue;
+				}
+				String[] temp = line[0].split("-");
+				Date date = new Date();
+				date.setYear(Integer.parseInt(temp[0]));
+				date.setMonth(Integer.parseInt(temp[1]) + 1);
+				date.setDate(Integer.parseInt(temp[2]));
 				Decimal open = Decimal.valueOf(Double.parseDouble(line[1]));
 				Decimal high = Decimal.valueOf(Double.parseDouble(line[2]));
 				Decimal low = Decimal.valueOf(Double.parseDouble(line[3]));

@@ -27,8 +27,9 @@ public class Tick {
 
 	public Tick(int duration, Date tickEndTime) {
 		this.endTime = tickEndTime;
-		tickEndTime.setSeconds(tickEndTime.getSeconds() - duration);
-		this.beginTime = tickEndTime;
+		this.beginTime = new Date(tickEndTime.getTime() - duration * 1000L);
+		this.volume = Decimal.ZERO;
+
 	}
 
 	public Date getTimeStamp() {
