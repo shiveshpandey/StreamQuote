@@ -76,12 +76,12 @@ public class StrategyRun {
 				stockList.add(stock);
 			}
 			try {
-				Thread.sleep(60000);
+				Thread.sleep(30000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 			startTime.setSeconds(endTime.getSeconds() + 1 * 1000);
-			endTime.setSeconds(endTime.getSeconds() + 60 * 1000);
+			endTime.setSeconds(endTime.getSeconds() + 30 * 1000);
 
 			if (timeRef.before(new Date())) {
 				runnable = false;
