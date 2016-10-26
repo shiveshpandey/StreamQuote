@@ -251,7 +251,7 @@ public class ZStreamingQuoteControl {
 	 * 
 	 * @return Instruments List
 	 */
-	private List<String> getInstrumentTokensList() {
+	public List<String> getInstrumentTokensList() {
 		String[] instrumentsArr = ZStreamingConfig.getInstrumentTokenArr();
 		List<String> instrumentList = Arrays.asList(instrumentsArr);
 		System.out

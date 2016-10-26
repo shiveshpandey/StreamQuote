@@ -15,7 +15,6 @@ public class TradingHolidays {
 	 * @return boolean
 	 */
 	public static boolean isHoliday() {
-		// get current date time with Calendar
 		DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
 		TimeZone timeZone = TimeZone.getTimeZone("IST");
 		dateFormat.setTimeZone(timeZone);
@@ -24,14 +23,12 @@ public class TradingHolidays {
 		System.out.println("TradingHolidays.isHoliday(): Trading Date: ["
 				+ todayString + "]");
 
-		// trading holiday list
 		String tradingHolidaysArr[] = ZStreamingConfig.getTradingHolidays();
 		try {
 			Date today = dateFormat.parse(todayString);
 			for (String tradingDay : tradingHolidaysArr) {
 				Date refDay = dateFormat.parse(tradingDay);
 				if (today.compareTo(refDay) == 0) {
-					// Trading Holiday
 					System.out
 							.println("TradingHolidays.isHoliday(): ITS A TRADING HOLIDAY !!!");
 					return true;
@@ -41,11 +38,8 @@ public class TradingHolidays {
 			System.out
 					.println("TradingHolidays.isHoliday(): ERROR: ParseException on parsing date !!!");
 			e.printStackTrace();
-			// system couldnt parse the complex date structure, how can trading
-			// happen - its a holiday :-)...
 			return true;
 		}
-
 		return false;
 	}
 }

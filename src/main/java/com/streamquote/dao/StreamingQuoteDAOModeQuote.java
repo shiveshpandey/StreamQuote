@@ -16,41 +16,28 @@ import com.streamquote.model.StreamingQuote;
 import com.streamquote.model.StreamingQuoteModeQuote;
 
 public class StreamingQuoteDAOModeQuote implements IStreamingQuoteStorage {
-	// JDBC driver name and database URL
 	private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
 	private static final String DB_URL = ZStreamingConfig
 			.getStreamingQuoteDbUrl();
-
-	// Database credentials
 	private static final String USER = ZStreamingConfig
 			.getStreamingQuoteDbUser();
 	private static final String PASS = ZStreamingConfig
 			.getStreamingQuoteDbPwd();
-
-	// DB connection
 	private Connection conn = null;
-
-	// Quote Table Name
 	private static String quoteTable = null;
 
 	/**
 	 * constructor
 	 */
 	public StreamingQuoteDAOModeQuote() {
-		//
 	}
 
-	/**
-	 * initializeJDBCConn - method to create and initialize JDBC connection
-	 */
 	@Override
 	public void initializeJDBCConn() {
 		try {
 			System.out
 					.println("StreamingQuoteDAOModeQuote.initializeJDBCConn(): creating JDBC connection for Streaming Quote...");
-			// Register JDBC driver
 			Class.forName(JDBC_DRIVER);
-			// Open the connection
 			conn = DriverManager.getConnection(DB_URL, USER, PASS);
 		} catch (ClassNotFoundException e) {
 			System.out
@@ -64,9 +51,6 @@ public class StreamingQuoteDAOModeQuote implements IStreamingQuoteStorage {
 		}
 	}
 
-	/**
-	 * closeJDBCConn - method to close JDBC connection
-	 */
 	@Override
 	public void closeJDBCConn() {
 		if (conn != null) {
@@ -85,12 +69,6 @@ public class StreamingQuoteDAOModeQuote implements IStreamingQuoteStorage {
 		}
 	}
 
-	/**
-	 * createDaysStreamingQuoteTable - method to create streaming quote table
-	 * for the day
-	 * 
-	 * @param date
-	 */
 	@Override
 	public void createDaysStreamingQuoteTable(String date) {
 		if (conn != null) {
@@ -131,18 +109,12 @@ public class StreamingQuoteDAOModeQuote implements IStreamingQuoteStorage {
 		}
 	}
 
-	/**
-	 * storeData - method to update the quote data
-	 * 
-	 * @param quote
-	 */
 	@Override
 	public void storeData(StreamingQuote quote) {
 		if (conn != null && quote instanceof StreamingQuoteModeQuote) {
 			StreamingQuoteModeQuote quoteModeQuote = (StreamingQuoteModeQuote) quote;
 
 			try {
-				// SQL query
 				String sql = "INSERT INTO "
 						+ quoteTable
 						+ " "
@@ -151,7 +123,6 @@ public class StreamingQuoteDAOModeQuote implements IStreamingQuoteStorage {
 						+ "values(?,?,?,?,?,?,?,?,?,?,?,?)";
 				PreparedStatement prepStmt = conn.prepareStatement(sql);
 
-				// prepare statement
 				prepStmt.setString(1, quoteModeQuote.getTime());
 				prepStmt.setString(2, quoteModeQuote.getInstrumentToken());
 				prepStmt.setBigDecimal(3, quoteModeQuote.getLtp());
@@ -174,7 +145,6 @@ public class StreamingQuoteDAOModeQuote implements IStreamingQuoteStorage {
 				System.out
 						.println("StreamingQuoteDAOModeQuote.storeData(): [SQLException Cause]: "
 								+ e.getMessage());
-				// e.printStackTrace();
 			}
 		} else {
 			if (conn != null) {
@@ -187,14 +157,6 @@ public class StreamingQuoteDAOModeQuote implements IStreamingQuoteStorage {
 		}
 	}
 
-	/**
-	 * getOHLCDataByTimeRange - OHLC values between two time
-	 * 
-	 * @param instrumentToken
-	 * @param prevTime
-	 * @param currTime
-	 * @return OHLC quote
-	 */
 	@Override
 	public OHLCquote getOHLCDataByTimeRange(String instrumentToken,
 			String prevTime, String currTime) {
@@ -204,7 +166,6 @@ public class StreamingQuoteDAOModeQuote implements IStreamingQuoteStorage {
 			try {
 				Statement stmt = conn.createStatement();
 
-				// SQL query OPEN
 				String openSql = "SELECT LastTradedPrice FROM " + quoteTable
 						+ " WHERE Time >= '" + prevTime + "' AND Time <= '"
 						+ currTime + "' AND InstrumentToken = '"
@@ -212,9 +173,7 @@ public class StreamingQuoteDAOModeQuote implements IStreamingQuoteStorage {
 				ResultSet openRs = stmt.executeQuery(openSql);
 				openRs.next();
 				BigDecimal openQuote = openRs.getBigDecimal("LastTradedPrice");
-				// System.out.println("OPEN: " + openQuote);
 
-				// SQL query HIGH
 				String highSql = "SELECT MAX(LastTradedPrice) FROM "
 						+ quoteTable + " WHERE Time >= '" + prevTime
 						+ "' AND Time <= '" + currTime
@@ -222,9 +181,7 @@ public class StreamingQuoteDAOModeQuote implements IStreamingQuoteStorage {
 				ResultSet highRs = stmt.executeQuery(highSql);
 				highRs.next();
 				BigDecimal highQuote = highRs.getBigDecimal(1);
-				// System.out.println("HIGH: " + highQuote);
 
-				// SQL query LOW
 				String lowSql = "SELECT MIN(LastTradedPrice) FROM "
 						+ quoteTable + " WHERE Time >= '" + prevTime
 						+ "' AND Time <= '" + currTime
@@ -232,9 +189,7 @@ public class StreamingQuoteDAOModeQuote implements IStreamingQuoteStorage {
 				ResultSet lowRs = stmt.executeQuery(lowSql);
 				lowRs.next();
 				BigDecimal lowQuote = lowRs.getBigDecimal(1);
-				// System.out.println("LOW: " + lowQuote);
 
-				// SQL query CLOSE
 				String closeSql = "SELECT LastTradedPrice FROM " + quoteTable
 						+ " WHERE Time >= '" + prevTime + "' AND Time <= '"
 						+ currTime + "' AND InstrumentToken = '"
@@ -243,9 +198,7 @@ public class StreamingQuoteDAOModeQuote implements IStreamingQuoteStorage {
 				closeRs.next();
 				BigDecimal closeQuote = closeRs
 						.getBigDecimal("LastTradedPrice");
-				// System.out.println("CLOSE: " + closeQuote);
 
-				// SQL query VOL
 				String volSql = "SELECT Volume FROM " + quoteTable
 						+ " WHERE Time >= '" + prevTime + "' AND Time <= '"
 						+ currTime + "' AND InstrumentToken = '"
@@ -253,7 +206,6 @@ public class StreamingQuoteDAOModeQuote implements IStreamingQuoteStorage {
 				ResultSet volRs = stmt.executeQuery(volSql);
 				volRs.next();
 				Long volQuote = volRs.getLong(1);
-				// System.out.println("VOL: " + volQuote);
 
 				ohlcMap = new OHLCquote(openQuote, highQuote, lowQuote,
 						closeQuote, volQuote);
@@ -264,7 +216,6 @@ public class StreamingQuoteDAOModeQuote implements IStreamingQuoteStorage {
 				System.out
 						.println("StreamingQuoteDAOModeQuote.getOHLCDataByTimeRange(): ERROR: SQLException on fetching data from Table, cause: "
 								+ e.getMessage());
-				// e.printStackTrace();
 			}
 		} else {
 			ohlcMap = null;
@@ -275,14 +226,6 @@ public class StreamingQuoteDAOModeQuote implements IStreamingQuoteStorage {
 		return ohlcMap;
 	}
 
-	/**
-	 * getQuoteByTimeRange - Quote Mode Quote data between two time
-	 * 
-	 * @param instrumentToken
-	 * @param prevTime
-	 * @param currTime
-	 * @return StreamingQuote list
-	 */
 	@Override
 	public List<StreamingQuote> getQuoteListByTimeRange(String instrumentToken,
 			String prevTime, String currTime) {
@@ -292,7 +235,6 @@ public class StreamingQuoteDAOModeQuote implements IStreamingQuoteStorage {
 			try {
 				Statement stmt = conn.createStatement();
 
-				// SQL query LTP Quote Data
 				String openSql = "SELECT * FROM " + quoteTable
 						+ " WHERE Time >= '" + prevTime + "' AND Time <= '"
 						+ currTime + "' AND InstrumentToken = '"
@@ -319,7 +261,6 @@ public class StreamingQuoteDAOModeQuote implements IStreamingQuoteStorage {
 							time, instrument_Token, lastTradedPrice,
 							lastTradedQty, avgTradedPrice, volume, buyQty,
 							sellQty, openPrice, highPrice, lowPrice, closePrice);
-					// System.out.println("Quote: " + streamingQuote);
 					streamingQuoteList.add(streamingQuote);
 				}
 
@@ -329,7 +270,6 @@ public class StreamingQuoteDAOModeQuote implements IStreamingQuoteStorage {
 				System.out
 						.println("StreamingQuoteDAOModeQuote.getQuoteByTimeRange(): ERROR: SQLException on fetching data from Table, cause: "
 								+ e.getMessage());
-				// e.printStackTrace();
 			}
 		} else {
 			streamingQuoteList = null;

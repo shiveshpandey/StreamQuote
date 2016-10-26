@@ -1,10 +1,10 @@
 package com.streamquote.app;
 
 public class ZStreamingConfig {
-	/**
-	 * Configuration Constants
-	 */
+
 	public static final String QUOTE_STREAMING_START_TIME = "09:15:01";
+	public static final String QUOTE_STREAMING_END_TIME = "15:30:01";
+
 	public static final Integer QUOTE_STREAMING_REINITIATE_DELAY_ON_INITIATE_FAIL = 500;
 	public static final Integer QUOTE_STREAMING_WS_HEARTBIT_CHECK_TIME = 3000;
 	public static final Integer QUOTE_STREAMING_WS_DATA_CHECK_TIME_ON_SUBSCRIBE = 5000;
@@ -49,9 +49,6 @@ public class ZStreamingConfig {
 	public static final String JETTY_SERVER_TIMERANGE_TO_TIME_REQ_PARAM = "to";
 	public static final String JETTY_SERVER_TIMERANGE_INSTRUMENT_REQ_PARAM = "instrument";
 
-	/**
-	 * Common Configurations
-	 */
 	public static Boolean isStreamingQuoteStartAtBootup() {
 		// Whether To start WebSocket streaming at the time of application
 		// launch or delay
@@ -62,6 +59,10 @@ public class ZStreamingConfig {
 		// If WebSocket streaming is delayed, configure the start time when
 		// streaming should be started
 		return QUOTE_STREAMING_START_TIME;
+	}
+
+	public static String getStreamingQuoteEndTime() {
+		return QUOTE_STREAMING_END_TIME;
 	}
 
 	public static Integer getStreamingQuoteReinitiateDelayOnInitiateFail() {
@@ -91,42 +92,28 @@ public class ZStreamingConfig {
 		return QUOTE_STREAMING_REINITIATE_RETRY_LIMIT;
 	}
 
-	/**
-	 * Instrument Tokens for Subscription
-	 */
 	public static String[] getInstrumentTokenArr() {
 		// Instrument Tokens for streaming data subscribe
 		return QUOTE_STREAMING_INSTRUMENTS_ARR;
 	}
 
-	/**
-	 * Streaming Data Modes
-	 */
 	public static String getStreamingQuoteMode() {
-		// Streaming Data Mode: 'ltp' / 'quote' / 'full'
 		return QUOTE_STREAMING_DEFAULT_MODE;
 	}
 
-	/**
-	 * DB specific config
-	 */
 	public static Boolean isStreamingQuoteStoringRequired() {
-		// Whether to store streaming data in DB
 		return QUOTE_STREAMING_DB_STORE_REQD;
 	}
 
 	public static String getStreamingQuoteDbUrl() {
-		// DB URL
 		return QUOTE_STREAMING_DB_URL;
 	}
 
 	public static String getStreamingQuoteDbUser() {
-		// DB User
 		return QUOTE_STREAMING_DB_USER;
 	}
 
 	public static String getStreamingQuoteDbPwd() {
-		// DB Password
 		return QUOTE_STREAMING_DB_PWD;
 	}
 
@@ -139,11 +126,7 @@ public class ZStreamingConfig {
 				+ QUOTE_STREAMING_DB_TABLE_NAME_POST_APPENDER + date;
 	}
 
-	/**
-	 * Trading Holidays
-	 */
 	public static String[] getTradingHolidays() {
-		// Dates when streaming quotes wont be active
 		return QUOTE_STREAMING_TRADING_HOLIDAYS;
 	}
 
@@ -169,27 +152,22 @@ public class ZStreamingConfig {
 	 * WebApp config
 	 */
 	public static Integer getJettyServerPortNum() {
-		// Port Num for Jetty Server
 		return JETTY_SERVER_PORT_NUM;
 	}
 
 	public static final String getJettyServerProcessStartURL() {
-		// Streaming Quote process Start URL
 		return JETTY_SERVER_PROCESS_START_URL;
 	}
 
 	public static final String getJettyServerProcessStopURL() {
-		// Streaming Quote process Stop URL
 		return JETTY_SERVER_PROCESS_STOP_URL;
 	}
 
 	public static final String getJettyServerTimeRangeOHLCURL() {
-		// Streaming Quote OHLC Data Fetch URL
 		return JETTY_SERVER_TIMERANGE_OHLC_URL;
 	}
 
 	public static final String getJettyServerTimeRangeStreamingQuoteURL() {
-		// Streaming Quote Streamed Data Fetch URL
 		return JETTY_SERVER_TIMERANGE_STREAMING_QUOTE_URL;
 	}
 

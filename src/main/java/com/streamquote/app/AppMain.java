@@ -1,69 +1,46 @@
 package com.streamquote.app;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
 public class AppMain {
 	public static void main(String[] args) {
 		String apiKey = "abcd51hdgns"; // API KEY
 		String userId = "DR1234"; // USER ID
 		String publicToken = "asljfldlncnl093nnnzc4"; // PUBLIC TOKEN
 
-		if (!TradingHolidays.isHoliday()) {
-			// Start Only when Its not a trading holiday
-			ZStreamingQuoteControl.getInstance().start(apiKey, userId,
-					publicToken);
+		DateFormat dtFmt1 = new SimpleDateFormat("yyyy-MM-dd");
+		dtFmt1.setTimeZone(TimeZone.getTimeZone("IST"));
 
-			// Time Range and Instrument Tokens
-			String fromTime = "14:00:00";
-			String toTime = "19:00:00";
-			String instrumentToken1 = ZStreamingConfig.getInstrumentTokenArr()[0];
-			String instrumentToken2 = ZStreamingConfig.getInstrumentTokenArr()[1];
+		DateFormat dtFmt2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		dtFmt2.setTimeZone(TimeZone.getTimeZone("IST"));
+		Date timeRef = null;
+		try {
+			timeRef = dtFmt2.parse(dtFmt1.format(Calendar.getInstance(
+					TimeZone.getTimeZone("IST")).getTime())
+					+ " " + ZStreamingConfig.getStreamingQuoteEndTime());
+		} catch (ParseException ex) {
+			ex.printStackTrace();
+		}
+		boolean runnable = true;
+		while (runnable) {
+			if (!TradingHolidays.isHoliday()) {
+				ZStreamingQuoteControl.getInstance().start(apiKey, userId,
+						publicToken);
 
-			// Sleep for 10 seconds for testing
-			try {
-				Thread.sleep(3000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+				try {
+					Thread.sleep(60000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				if (timeRef.before(new Date())) {
+					runnable = false;
+				}
 			}
-
-			// OHLC Data Print
-			System.out.println("\nTestApp.main(): Instrument ["
-					+ instrumentToken1 + "] OHLC Data between Time Range ["
-					+ fromTime + "] : [" + toTime + "] ::");
-			System.out.println(ZStreamingQuoteControl.getInstance()
-					.getOHLCDataByTimeRange(instrumentToken1, fromTime, toTime)
-					+ "\n");
-			System.out.println("\nTestApp.main(): Instrument ["
-					+ instrumentToken2 + "] OHLC Data between Time Range ["
-					+ fromTime + "] : [" + toTime + "] ::");
-			System.out.println(ZStreamingQuoteControl.getInstance()
-					.getOHLCDataByTimeRange(instrumentToken2, fromTime, toTime)
-					+ "\n");
-
-			// Streamed Data Print
-			System.out.println("\nTestApp.main(): Instrument ["
-					+ instrumentToken1 + "] Streamed Data between Time Range ["
-					+ fromTime + "] : [" + toTime + "] ::");
-			System.out
-					.println(ZStreamingQuoteControl.getInstance()
-							.getQuoteListByTimeRange(instrumentToken1,
-									fromTime, toTime)
-							+ "\n");
-			System.out.println("\nTestApp.main(): Instrument ["
-					+ instrumentToken2 + "] Streamed Data between Time Range ["
-					+ fromTime + "] : [" + toTime + "] ::");
-			System.out
-					.println(ZStreamingQuoteControl.getInstance()
-							.getQuoteListByTimeRange(instrumentToken2,
-									fromTime, toTime)
-							+ "\n");
-
-			// Sleep for 10 seconds for testing
-			try {
-				Thread.sleep(10000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-
-			// Stop
 			ZStreamingQuoteControl.getInstance().stop();
 		}
 	}
