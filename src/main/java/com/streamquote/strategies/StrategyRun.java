@@ -1,5 +1,10 @@
 package com.streamquote.strategies;
 
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -82,7 +87,35 @@ public class StrategyRun {
 				runnable = false;
 			}
 		}
-		System.out.println(stockList.size());
+		writeToFile();
+	}
+
+	private static void writeToFile() {
+		Writer writer = null;
+
+		try {
+			writer = new BufferedWriter(new OutputStreamWriter(
+					new FileOutputStream("/home/shiva/abc.txt"), "utf-8"));
+			for (int i = 0; i < stockList.size(); i++) {
+				for (StockTicker tick : stockList.get(i).getTicks()) {
+					writer.write(tick.getClosePrice() + "," + tick.getAwesome()
+							+ "," + tick.getEma1() + "," + tick.getEma2() + ","
+							+ tick.getEma3() + "," + tick.getEmaD() + ","
+							+ tick.getEmaT() + "," + tick.getLastTradedPrice()
+							+ "," + tick.getMacd() + "," + tick.getOpenPrice()
+							+ "," + tick.getRsi() + "," + tick.getSma1() + ","
+							+ tick.getSma2() + "," + tick.getSma3() + ","
+							+ tick.getTimeStamp() + "," + tick.getVolume()
+							+ "\n");
+				}
+			}
+		} catch (IOException ex) {
+		} finally {
+			try {
+				writer.close();
+			} catch (Exception ex) {
+			}
+		}
 	}
 
 	private static StockPriceSeriesListing getStockByName(String string) {
@@ -94,6 +127,6 @@ public class StrategyRun {
 				return stockPrice;
 			}
 		}
-		return null;
+		return new StockPriceSeriesListing();
 	}
 }

@@ -33,7 +33,7 @@ public class AppMain {
 						publicToken);
 
 				try {
-					Thread.sleep(60000);
+					Thread.sleep(30000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -41,7 +41,7 @@ public class AppMain {
 					runnable = false;
 				}
 			}
-			ZStreamingQuoteControl.getInstance().stop();
 		}
+		ZStreamingQuoteControl.getInstance().stop();
 	}
 }
