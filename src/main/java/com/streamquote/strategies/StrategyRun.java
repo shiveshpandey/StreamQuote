@@ -16,6 +16,8 @@ import java.util.TimeZone;
 
 import com.streamquote.app.ZStreamingConfig;
 import com.streamquote.app.ZStreamingQuoteControl;
+import com.streamquote.dao.IStreamingQuoteStorage;
+import com.streamquote.dao.StreamingQuoteStorageFactory;
 import com.streamquote.model.OHLCquote;
 
 public class StrategyRun {
@@ -31,6 +33,8 @@ public class StrategyRun {
 
 		DateFormat dtFmt2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		dtFmt2.setTimeZone(TimeZone.getTimeZone("IST"));
+		DateFormat dtFmt3 = new SimpleDateFormat("HH:mm:ss");
+		dtFmt3.setTimeZone(TimeZone.getTimeZone("IST"));
 		Date timeRef = null;
 		try {
 			timeRef = dtFmt2.parse(dtFmt1.format(Calendar.getInstance(
@@ -52,6 +56,9 @@ public class StrategyRun {
 
 		boolean runnable = true;
 		boolean isFirstRun = true;
+		IStreamingQuoteStorage streamingQuoteStorage = StreamingQuoteStorageFactory
+				.getStreamingQuoteStorage();
+		streamingQuoteStorage.initializeJDBCConn();
 
 		while (runnable) {
 
@@ -64,16 +71,20 @@ public class StrategyRun {
 				}
 				OHLCquote getQuote = ZStreamingQuoteControl.getInstance()
 						.getOHLCDataByTimeRange(instrumentNameList.get(j),
-								startTime.toString(), endTime.toString());
+								dtFmt3.format(startTime),
+								dtFmt3.format(endTime));
+
 				StockPriceSeriesListing stock = getStockByName(instrumentNameList
 						.get(j));
-				stock.addNewTick(
-						new Date(),
-						Decimal.valueOf(getQuote.getOpenPrice().doubleValue()),
-						Decimal.valueOf(getQuote.getClosePrice().doubleValue()),
-						Decimal.valueOf(getQuote.getHighPrice().doubleValue()),
-						Decimal.valueOf(getQuote.getVol()));
+				if (null != getQuote)
+					stock.addNewTick(new Date(), Decimal.valueOf(getQuote
+							.getOpenPrice().doubleValue()), Decimal
+							.valueOf(getQuote.getClosePrice().doubleValue()),
+							Decimal.valueOf(getQuote.getHighPrice()
+									.doubleValue()), Decimal.valueOf(getQuote
+									.getVol()));
 				stockList.add(stock);
+				writeToFile(stock);
 			}
 			try {
 				Thread.sleep(30000);
@@ -87,28 +98,25 @@ public class StrategyRun {
 				runnable = false;
 			}
 		}
-		writeToFile();
 	}
 
-	private static void writeToFile() {
+	private static void writeToFile(StockPriceSeriesListing stock) {
 		Writer writer = null;
 
 		try {
 			writer = new BufferedWriter(new OutputStreamWriter(
-					new FileOutputStream("/home/shiva/abc.txt"), "utf-8"));
-			for (int i = 0; i < stockList.size(); i++) {
-				for (StockTicker tick : stockList.get(i).getTicks()) {
-					writer.write(tick.getClosePrice() + "," + tick.getAwesome()
-							+ "," + tick.getEma1() + "," + tick.getEma2() + ","
-							+ tick.getEma3() + "," + tick.getEmaD() + ","
-							+ tick.getEmaT() + "," + tick.getLastTradedPrice()
-							+ "," + tick.getMacd() + "," + tick.getOpenPrice()
-							+ "," + tick.getRsi() + "," + tick.getSma1() + ","
-							+ tick.getSma2() + "," + tick.getSma3() + ","
-							+ tick.getTimeStamp() + "," + tick.getVolume()
-							+ "\n");
-				}
+					new FileOutputStream("/home/shiva/abc.txt", true), "utf-8"));
+			for (StockTicker tick : stock.getTicks()) {
+				writer.write(tick.getClosePrice() + "," + tick.getAwesome()
+						+ "," + tick.getEma1() + "," + tick.getEma2() + ","
+						+ tick.getEma3() + "," + tick.getEmaD() + ","
+						+ tick.getEmaT() + "," + tick.getLastTradedPrice()
+						+ "," + tick.getMacd() + "," + tick.getOpenPrice()
+						+ "," + tick.getRsi() + "," + tick.getSma1() + ","
+						+ tick.getSma2() + "," + tick.getSma3() + ","
+						+ tick.getTimeStamp() + "," + tick.getVolume() + "\n\n");
 			}
+
 		} catch (IOException ex) {
 		} finally {
 			try {

@@ -7,8 +7,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import com.streamquote.app.ZStreamingConfig;
 import com.streamquote.model.OHLCquote;
@@ -279,4 +283,73 @@ public class StreamingQuoteDAOModeQuote implements IStreamingQuoteStorage {
 
 		return streamingQuoteList;
 	}
+
+	@Override
+	public void createDaysStreamingQuoteSignalTable(String date) {
+		if (conn != null) {
+			Statement stmt;
+			try {
+				stmt = conn.createStatement();
+				quoteTable = ZStreamingConfig
+						.getStreamingQuoteTbNameAppendFormat(date);
+				String sql = "CREATE TABLE "
+						+ quoteTable
+						+ "TradingSignal"
+						+ " "
+						+ "(Time time NOT NULL, "
+						+ " InstrumentToken varchar(32) NOT NULL, "
+						+ " TradeSignal varchar(32) NOT NULL, "
+						+ " PRIMARY KEY (InstrumentToken, Time)) "
+						+ " ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;";
+				stmt.executeUpdate(sql);
+				System.out
+						.println("StreamingQuoteDAOModeQuote.createDaysStreamingQuoteSignalTable(): SQL table for Streaming quote created, table name: ["
+								+ quoteTable + "]");
+			} catch (SQLException e) {
+				System.out
+						.println("StreamingQuoteDAOModeQuote.createDaysStreamingQuoteSignalTable(): ERROR: SQLException on creating Table, cause: "
+								+ e.getMessage());
+			}
+		} else {
+			System.out
+					.println("StreamingQuoteDAOModeQuote.createDaysStreamingQuoteSignalTable(): ERROR: DB conn is null !!!");
+		}
+	}
+
+	@Override
+	public void storeSignalData(Date lastTickTime, String stockName,
+			String tradeBuy) {
+		// DateFormat dtFmt2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		// dtFmt2.setTimeZone(TimeZone.getTimeZone("IST"));
+		DateFormat dtFmt3 = new SimpleDateFormat("HH:mm:ss");
+		dtFmt3.setTimeZone(TimeZone.getTimeZone("IST"));
+		if (conn != null) {
+			try {
+				String sql = "INSERT INTO " + quoteTable + "TradingSignal"
+						+ " " + "(Time, InstrumentToken, TradeSignal) "
+						+ "values(?,?,?)";
+				PreparedStatement prepStmt = conn.prepareStatement(sql);
+
+				prepStmt.setString(1, dtFmt3.format(lastTickTime));
+				prepStmt.setString(2, stockName);
+				prepStmt.setString(3, tradeBuy);
+
+				prepStmt.executeUpdate();
+				prepStmt.close();
+			} catch (SQLException e) {
+				System.out
+						.println("StreamingQuoteDAOModeQuote.storeSignalData(): [SQLException Cause]: "
+								+ e.getMessage());
+			}
+		} else {
+			if (conn != null) {
+				System.out
+						.println("StreamingQuoteDAOModeQuote.storeSignalData(): ERROR: DB conn is null !!!");
+			} else {
+				System.out
+						.println("StreamingQuoteDAOModeQuote.storeSignalData(): ERROR: quote is not of type StreamingQuoteModeQuote !!!");
+			}
+		}
+	}
+
 }

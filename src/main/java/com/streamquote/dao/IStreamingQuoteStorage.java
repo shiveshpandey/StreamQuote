@@ -1,5 +1,6 @@
 package com.streamquote.dao;
 
+import java.util.Date;
 import java.util.List;
 
 import com.streamquote.model.OHLCquote;
@@ -20,4 +21,8 @@ public interface IStreamingQuoteStorage {
 
 	public List<StreamingQuote> getQuoteListByTimeRange(String instrumentToken,
 			String prevTime, String currTime);
+
+	void storeSignalData(Date lastTickTime, String stockName, String tradeBuy);
+
+	void createDaysStreamingQuoteSignalTable(String date);
 }

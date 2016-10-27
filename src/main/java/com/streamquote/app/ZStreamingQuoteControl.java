@@ -204,6 +204,7 @@ public class ZStreamingQuoteControl {
 			// Initialize streaming Quote Storage
 			streamingQuoteStorage.initializeJDBCConn();
 			streamingQuoteStorage.createDaysStreamingQuoteTable(date);
+			streamingQuoteStorage.createDaysStreamingQuoteSignalTable(date);
 		}
 
 		// Instrument Tokens List for subscribing
@@ -259,5 +260,11 @@ public class ZStreamingQuoteControl {
 						+ instrumentList);
 
 		return instrumentList;
+	}
+
+	public void storeSignalData(Date lastTickTime, String stockName,
+			String tradeBuy) {
+		streamingQuoteStorage
+				.storeSignalData(lastTickTime, stockName, tradeBuy);
 	}
 }

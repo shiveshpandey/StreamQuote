@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.streamquote.app.ZStreamingConfig;
@@ -519,5 +520,18 @@ public class StreamingQuoteDAOModeFull implements IStreamingQuoteStorage {
 		}
 
 		return streamingQuoteList;
+	}
+
+	@Override
+	public void storeSignalData(Date lastTickTime, String stockName,
+			String tradeBuy) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void createDaysStreamingQuoteSignalTable(String date) {
+		// TODO Auto-generated method stub
+		
 	}
 }

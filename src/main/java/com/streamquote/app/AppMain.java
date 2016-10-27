@@ -27,8 +27,9 @@ public class AppMain {
 			ex.printStackTrace();
 		}
 		boolean runnable = true;
-		while (runnable) {
-			if (!TradingHolidays.isHoliday()) {
+		if (!TradingHolidays.isHoliday()) {
+
+			while (runnable) {
 				ZStreamingQuoteControl.getInstance().start(apiKey, userId,
 						publicToken);
 
@@ -42,6 +43,6 @@ public class AppMain {
 				}
 			}
 		}
-		ZStreamingQuoteControl.getInstance().stop();
+		// ZStreamingQuoteControl.getInstance().stop();
 	}
 }
