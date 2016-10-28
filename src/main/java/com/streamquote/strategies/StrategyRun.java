@@ -36,6 +36,12 @@ public class StrategyRun {
 		DateFormat dtFmt3 = new SimpleDateFormat("HH:mm:ss");
 		dtFmt3.setTimeZone(TimeZone.getTimeZone("IST"));
 		Date timeRef = null;
+
+		DateFormat quoteTableDtFmt = new SimpleDateFormat("ddMMyyyy");
+		quoteTableDtFmt.setTimeZone(TimeZone.getTimeZone("IST"));
+		String date = quoteTableDtFmt.format(Calendar.getInstance(
+				TimeZone.getTimeZone("IST")).getTime());
+
 		try {
 			timeRef = dtFmt2.parse(dtFmt1.format(Calendar.getInstance(
 					TimeZone.getTimeZone("IST")).getTime())
@@ -59,7 +65,8 @@ public class StrategyRun {
 		IStreamingQuoteStorage streamingQuoteStorage = StreamingQuoteStorageFactory
 				.getStreamingQuoteStorage();
 		streamingQuoteStorage.initializeJDBCConn();
-
+		streamingQuoteStorage.setQuoteTableName(date);
+		int i = 0;
 		while (runnable) {
 
 			for (int j = 0; j < instrumentNameList.size(); j++) {
@@ -69,7 +76,7 @@ public class StrategyRun {
 					stock.setStockName(instrumentNameList.get(j));
 					stockList.add(stock);
 				}
-				OHLCquote getQuote = ZStreamingQuoteControl.getInstance()
+				OHLCquote getQuote = streamingQuoteStorage
 						.getOHLCDataByTimeRange(instrumentNameList.get(j),
 								dtFmt3.format(startTime),
 								dtFmt3.format(endTime));
@@ -82,21 +89,22 @@ public class StrategyRun {
 							.valueOf(getQuote.getClosePrice().doubleValue()),
 							Decimal.valueOf(getQuote.getHighPrice()
 									.doubleValue()), Decimal.valueOf(getQuote
-									.getVol()));
+									.getVol()), streamingQuoteStorage);
 				stockList.add(stock);
 				writeToFile(stock);
 			}
 			try {
-				Thread.sleep(30000);
+				Thread.sleep(20000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			startTime.setSeconds(endTime.getSeconds() + 1 * 1000);
-			endTime.setSeconds(endTime.getSeconds() + 30 * 1000);
+			startTime.setSeconds(endTime.getSeconds() + 1);
+			endTime.setSeconds(endTime.getSeconds() + 20);
 
 			if (timeRef.before(new Date())) {
 				runnable = false;
 			}
+			System.out.println(i++);
 		}
 	}
 

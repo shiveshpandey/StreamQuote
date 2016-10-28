@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.streamquote.app.ZStreamingQuoteControl;
+import com.streamquote.dao.IStreamingQuoteStorage;
 
 public class StockPriceSeriesListing {
 	private String stockName;
@@ -23,7 +23,8 @@ public class StockPriceSeriesListing {
 	}
 
 	public void addNewTick(Date timeStamp, Decimal openPrice,
-			Decimal closePrice, Decimal lastTradedPrice, Decimal volume) {
+			Decimal closePrice, Decimal lastTradedPrice, Decimal volume,
+			IStreamingQuoteStorage streamingQuoteStorage) {
 		this.lastTickTime = timeStamp;
 
 		StockTicker st = new StockTicker();
@@ -51,10 +52,11 @@ public class StockPriceSeriesListing {
 		ticks.remove(ticks.size() - 1);
 		ticks.add(st);
 
-		calculateTradingCallSignal();
+		calculateTradingCallSignal(streamingQuoteStorage, st.getClosePrice());
 	}
 
-	private void calculateTradingCallSignal() {
+	private void calculateTradingCallSignal(
+			IStreamingQuoteStorage streamingQuoteStorage, Decimal decimal) {
 		String tradeSig;
 		if (ticks.size() >= 3
 				&& ticks.get(ticks.size() - 1).getMacd()
@@ -84,14 +86,16 @@ public class StockPriceSeriesListing {
 		} else {
 			tradeSig = TRADE_HOLD;
 		}
-		generateTradingCallSignal(this.lastTickTime, this.stockName, tradeSig);
+		generateTradingCallSignal(this.lastTickTime, this.stockName, tradeSig,
+				decimal, streamingQuoteStorage);
 
 	}
 
 	private void generateTradingCallSignal(Date lastTickTime, String stockName,
-			String tradeBuy) {
-		ZStreamingQuoteControl.getInstance().storeSignalData(lastTickTime,
-				stockName, tradeBuy);
+			String tradeBuy, Decimal decimal,
+			IStreamingQuoteStorage streamingQuoteStorage) {
+		streamingQuoteStorage.storeSignalData(lastTickTime, stockName,
+				tradeBuy, String.valueOf(decimal.toDouble()));
 	}
 
 	public String getStockName() {

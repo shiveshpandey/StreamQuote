@@ -263,8 +263,8 @@ public class ZStreamingQuoteControl {
 	}
 
 	public void storeSignalData(Date lastTickTime, String stockName,
-			String tradeBuy) {
-		streamingQuoteStorage
-				.storeSignalData(lastTickTime, stockName, tradeBuy);
+			String tradeBuy, String closePrice) {
+		streamingQuoteStorage.storeSignalData(lastTickTime, stockName,
+				tradeBuy, closePrice);
 	}
 }

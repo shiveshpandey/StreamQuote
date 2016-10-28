@@ -300,13 +300,19 @@ public class StreamingQuoteDAOModeLtp implements IStreamingQuoteStorage {
 
 	@Override
 	public void storeSignalData(Date lastTickTime, String stockName,
-			String tradeBuy) {
+			String tradeBuy,String closePrice) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void createDaysStreamingQuoteSignalTable(String date) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setQuoteTableName(String date) {
 		// TODO Auto-generated method stub
 		
 	}

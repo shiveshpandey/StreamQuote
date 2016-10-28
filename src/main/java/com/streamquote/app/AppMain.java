@@ -34,7 +34,7 @@ public class AppMain {
 						publicToken);
 
 				try {
-					Thread.sleep(30000);
+					Thread.sleep(20000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}

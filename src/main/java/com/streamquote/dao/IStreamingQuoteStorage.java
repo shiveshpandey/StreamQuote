@@ -22,7 +22,9 @@ public interface IStreamingQuoteStorage {
 	public List<StreamingQuote> getQuoteListByTimeRange(String instrumentToken,
 			String prevTime, String currTime);
 
-	void storeSignalData(Date lastTickTime, String stockName, String tradeBuy);
+	void storeSignalData(Date lastTickTime, String stockName, String tradeBuy, String string);
 
 	void createDaysStreamingQuoteSignalTable(String date);
+
+	public void setQuoteTableName(String date);
 }

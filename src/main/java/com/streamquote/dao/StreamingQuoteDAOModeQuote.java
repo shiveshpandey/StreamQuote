@@ -299,6 +299,7 @@ public class StreamingQuoteDAOModeQuote implements IStreamingQuoteStorage {
 						+ "(Time time NOT NULL, "
 						+ " InstrumentToken varchar(32) NOT NULL, "
 						+ " TradeSignal varchar(32) NOT NULL, "
+						+ " ClosePrice varchar(32) NOT NULL, "
 						+ " PRIMARY KEY (InstrumentToken, Time)) "
 						+ " ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;";
 				stmt.executeUpdate(sql);
@@ -318,7 +319,7 @@ public class StreamingQuoteDAOModeQuote implements IStreamingQuoteStorage {
 
 	@Override
 	public void storeSignalData(Date lastTickTime, String stockName,
-			String tradeBuy) {
+			String tradeBuy, String closePrice) {
 		// DateFormat dtFmt2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		// dtFmt2.setTimeZone(TimeZone.getTimeZone("IST"));
 		DateFormat dtFmt3 = new SimpleDateFormat("HH:mm:ss");
@@ -326,13 +327,15 @@ public class StreamingQuoteDAOModeQuote implements IStreamingQuoteStorage {
 		if (conn != null) {
 			try {
 				String sql = "INSERT INTO " + quoteTable + "TradingSignal"
-						+ " " + "(Time, InstrumentToken, TradeSignal) "
-						+ "values(?,?,?)";
+						+ " "
+						+ "(Time, InstrumentToken, TradeSignal,ClosePrice) "
+						+ "values(?,?,?,?)";
 				PreparedStatement prepStmt = conn.prepareStatement(sql);
 
 				prepStmt.setString(1, dtFmt3.format(lastTickTime));
 				prepStmt.setString(2, stockName);
 				prepStmt.setString(3, tradeBuy);
+				prepStmt.setString(4, closePrice);
 
 				prepStmt.executeUpdate();
 				prepStmt.close();
@@ -350,6 +353,11 @@ public class StreamingQuoteDAOModeQuote implements IStreamingQuoteStorage {
 						.println("StreamingQuoteDAOModeQuote.storeSignalData(): ERROR: quote is not of type StreamingQuoteModeQuote !!!");
 			}
 		}
+	}
+
+	@Override
+	public void setQuoteTableName(String date) {
+		quoteTable = ZStreamingConfig.getStreamingQuoteTbNameAppendFormat(date);
 	}
 
 }
