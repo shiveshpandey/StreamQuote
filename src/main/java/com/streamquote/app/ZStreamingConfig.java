@@ -4,7 +4,7 @@ public class ZStreamingConfig {
 	/**
 	 * Configuration Constants
 	 */
-	public static final String QUOTE_STREAMING_START_TIME = "09:15:01";
+	public static final String QUOTE_STREAMING_START_TIME = "06:15:01";
 	public static final Integer QUOTE_STREAMING_REINITIATE_DELAY_ON_INITIATE_FAIL = 500;
 	public static final Integer QUOTE_STREAMING_WS_HEARTBIT_CHECK_TIME = 3000;
 	public static final Integer QUOTE_STREAMING_WS_DATA_CHECK_TIME_ON_SUBSCRIBE = 5000;
