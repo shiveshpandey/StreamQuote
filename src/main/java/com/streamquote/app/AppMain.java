@@ -2,9 +2,9 @@ package com.streamquote.app;
 
 public class AppMain {
 	public static void main(String[] args) {
-		String apiKey = "abcd51hdgns"; // API KEY
-		String userId = "DR1234"; // USER ID
-		String publicToken = "asljfldlncnl093nnnzc4"; // PUBLIC TOKEN
+		String apiKey = "nwjyiweq@m6z4pmii"; // API KEY
+		String userId = "RS4216"; // USER ID
+		String publicToken = "d541d29822ec53ca5ea343bc@7ee4e811"; // PUBLIC TOKEN
 
 		if (!TradingHolidays.isHoliday()) {
 			// Start Only when Its not a trading holiday

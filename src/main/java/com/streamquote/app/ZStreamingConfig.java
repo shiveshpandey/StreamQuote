@@ -4,7 +4,7 @@ public class ZStreamingConfig {
 	/**
 	 * Configuration Constants
 	 */
-	public static final String QUOTE_STREAMING_START_TIME = "06:15:01";
+	public static final String QUOTE_STREAMING_START_TIME = "09:15:01";
 	public static final Integer QUOTE_STREAMING_REINITIATE_DELAY_ON_INITIATE_FAIL = 500;
 	public static final Integer QUOTE_STREAMING_WS_HEARTBIT_CHECK_TIME = 3000;
 	public static final Integer QUOTE_STREAMING_WS_DATA_CHECK_TIME_ON_SUBSCRIBE = 5000;
@@ -14,7 +14,7 @@ public class ZStreamingConfig {
 
 	public static final String QUOTE_STREAMING_DB_URL = "jdbc:mysql://localhost:3306/StreamQuoteDB";
 	public static final String QUOTE_STREAMING_DB_USER = "root";
-	public static final String QUOTE_STREAMING_DB_PWD = "@@Kumar9191";
+	public static final String QUOTE_STREAMING_DB_PWD = "root";
 	public static final String QUOTE_STREAMING_DB_TABLE_NAME_PRE_APPENDER = "StreamingQuoteMode_Mode";
 	public static final String QUOTE_STREAMING_DB_TABLE_NAME_POST_APPENDER = "_Date";
 	public static final Boolean QUOTE_STREAMING_DB_STORE_REQD = true;
